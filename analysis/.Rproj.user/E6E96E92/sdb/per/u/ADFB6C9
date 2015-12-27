@@ -1,0 +1,17 @@
+{
+    "contents" : "setwd(\"../China PM2.5 PM10 data//historical data\")\ndir()\nwriteLines(iconv(readLines(\"三亚.csv\"), from=\"UTF-8\", to=\"UTF-8\"), file(\"三亚new.csv\", encoding=\"UTF-8\"))\ntestdat = read.csv(\"三亚new.csv\", stringsAsFactors=F, header=F, encoding=\"UTF-8\")\nhead(testdat)\nSys.setlocale( locale=\"UTF-8\" )\n",
+    "created" : 1448378921239.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "3551878811",
+    "id" : "ADFB6C9",
+    "lastKnownWriteTime" : 165946160,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

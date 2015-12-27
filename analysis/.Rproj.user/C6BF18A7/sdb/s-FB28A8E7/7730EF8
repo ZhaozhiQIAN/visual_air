@@ -1,0 +1,17 @@
+{
+    "contents" : "# library(ggmap)\n# \n# chn = get_map(location=\"houston\", zoom=14)\n# chnMap = ggmap(chn, extent = \"device\")\n# \n# HoustonMap <- qmap(\"houston\", zoom = 14, color = \"bw\", legend = \"topleft\")\nlibrary(ggplot2)\nlibrary(maptools)\nmydat <- readShapePoly('../maps/bou2_4p.shp')\nmydat$NAME = iconv(mydat$NAME, from = \"GBK\")\n\nmymap = ggplot() +\n    geom_polygon(data = fortify(mydat), aes(x = long, y = lat, group = id), colour = \"black\",fill = \"lightgreen\") +\n    theme_grey()\nprint(mymap + coord_map())\n\n# random data\nlong_samp = runif(100, 120, n = 1000)\nlat_samp = runif(30, 35, n=1000)\nval = rnorm(1000, 100, 20)\nval_dat = data.frame(long=long_samp, lat=lat_samp, val=val)\n\nmymap2 = ggplot() +\n    geom_polygon(data = fortify(mydat), aes(x = long, y = lat, group = id), colour = \"black\",fill = \"lightgreen\") +\n    geom_point(data=val_dat, aes(x=long, y=lat, color=val))\nprint(mymap2 + coord_map())\n\n# subsample one day\noneday = join_dat[join_dat$date==\"2015-9-1\", ]\n\nmymap3 = ggplot() +\n    geom_polygon(data = fortify(mydat), aes(x = long, y = lat, group = id), colour = \"black\",fill = \"lightgreen\") +\n    geom_point(data=oneday, aes(x=GPSLontitude, y=GPSLatitude, color=pm25)) + \n    coord_map()\nprint(mymap3)\n\n# contour plot\nx<-seq(1,11,.03)                    # note finer grid\ny<-seq(1,11,.03)\nxyz.func<-function(x,y) {-10.4+6.53*x+6.53*y-0.167*x^2-0.167*y^2+0.0500*x*y}\ngg <- expand.grid(x=x,y=y)\ngg$z <- with(gg,xyz.func(x,y))      # need long format for ggplot\n# library(ggplot2)\nlibrary(RColorBrewer)               #for brewer.pal()\n# create label and reformat\nbrks <- cut(gg$z,breaks=seq(0,100,len=6)) # (start,end]\nbrks <- gsub(\",\",\" - \",brks,fixed=TRUE)   # (start - end]\ngg$brks <- gsub(\"\\\\(|\\\\]\",\"\",brks)        # start - end\n\ncontour_plot = ggplot(gg,aes(x,y))\ncontour_plot = contour_plot + geom_tile(aes(fill=brks)) # alpha=z\ncontour_plot = contour_plot +  scale_fill_manual(\"Z\",values=brewer.pal(6,\"YlOrRd\")) # override default value\ncontour_plot = contour_plot +  scale_x_continuous(expand=c(0,0)) # remove grey background\ncontour_plot = contour_plot +  scale_y_continuous(expand=c(0,0))\ncontour_plot = contour_plot +  coord_fixed()\ncontour_plot\n",
+    "created" : 1450607843757.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2421881276",
+    "id" : "7730EF8",
+    "lastKnownWriteTime" : 1450646652,
+    "path" : "~/Projects/pm25/PM25/analysis/visual.R",
+    "project_path" : "visual.R",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

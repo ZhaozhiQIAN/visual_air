@@ -1,0 +1,18 @@
+{
+    "contents" : "driver = function(start_date, end_date){\n    ## training model\n    samp_dat = join_dat[(join_dat$date > as.Date(start_date)) & (join_dat$date < as.Date(end_date)), ]\n    \n    obs_loc = unique(samp_dat[, c(\"GPSLontitude\", \"GPSLatitude\")])\n    obs_loc = obs_loc[order(obs_loc$GPSLontitude, obs_loc$GPSLatitude), ]\n    pmSP = SpatialPoints(obs_loc)\n    pmTM = sort(unique(samp_dat$date))\n    pmDF_train = TidyDat(samp_dat, pmSP, pmTM,\"pm25\")\n    \n    avg_impute = mean(pmDF_train@data$pm25, na.rm=T)\n    pmDF_train@data$pm25[is.na(pmDF_train@data$pm25)] = avg_impute\n    \n    var = variogramST(pm25~1, data=pmDF_train, assumeRegular=F, na.omit=T, progress = FALSE) \n    pars.l = c(sill.s=0.001, range.s=0.001, nugget.s=0.001, sill.t=0.001, range.t=1, nugget.t=0.001, sill.st=0.001, range.st=10, nugget.st=0.001, anis=0)\n    SimplesumMetric <- vgmST(\"simpleSumMetric\",space = vgm(1200, \"Exp\", 30, 0.1),\n                             time = vgm(500,\"Spl\", 10, 0.1), \n                             joint = vgm(1,\"Gau\", 500, 0), nugget=1000, stAni=1) \n    SimplesumMetric_Vgm <- fit.StVariogram(var, SimplesumMetric,method = \"L-BFGS-B\",lower=pars.l, fit.method = 6)\n \n    ## predict on sample grid\n    sps = spsample(mydat, 5000, type=\"regular\")\n    names(obs_loc) = c(\"x1\",\"x2\")\n    sps@coords = rbind(sps@coords, as.matrix(obs_loc))\n    \n    tms_whole = seq(as.Date(start_date), as.Date(end_date), by=1)\n    ind = ceiling(seq.int(0, length(tms_whole), length.out=7))\n    # ind = ceiling(seq.int(0, length(tms_whole), length.out=15))\n    tms = list()\n    for (i in 1:(length(ind)-1)){\n        tms[[i]] = tms_whole[(1+ind[i]) : ind[i+1]]\n    }\n    \n    pred_lst = list()\n    for (i in 1:length(tms)){\n        grid.st = STF(sps, tms[[i]])\n        \n        pred = krigeST(pm25 ~ 1, data=pmDF_train, modelList = SimplesumMetric_Vgm, newdata=grid.st)\n        pred_lst[[i]] = pred\n        \n        pred_lst = time.split(pred)\n        \n        ## draw plot\n        base_plot = ggplot() + \n            geom_polygon(data = fortify(mydat), aes(x = long, y = lat, group = id), colour = \"black\",fill = \"white\") +\n            scale_colour_manual(\"PM 2.5\",values=pm25_col) +\n            scale_x_continuous(expand=c(0,0)) +\n            scale_y_continuous(expand=c(0,0)) +\n            coord_map()\n        \n        viso_base = viso_gen(base_plot, write_png=TRUE)\n        lapply(pred_lst, viso_base)\n    }\n    pred_lst\n}\n\nnov = driver(\"2015-11-1\", \"2015-11-30\")\noct = driver(\"2015-10-1\", \"2015-10-31\")\nsept = driver(\"2015-9-1\", \"2015-9-30\") \nmay = driver(\"2015-5-1\", \"2015-5-31\")\n\n\nmar = driver(\"2015-3-1\", \"2015-3-31\")\naug = driver(\"2015-8-1\", \"2015-8-31\") #\nJul = driver(\"2015-7-1\", \"2015-7-31\") #\njun = driver(\"2015-6-1\", \"2015-6-30\") #\napr = driver(\"2015-4-1\", \"2015-4-30\") #\nfeb = driver(\"2015-2-1\", \"2015-2-28\") #\njan = driver(\"2015-1-1\", \"2015-1-31\") #\n\nseq(as.Date(\"2015-11-1\"), as.Date(\"2015-12-1\"), by=1)\n\njoin_dat[(join_dat$date > as.Date(start_date)) & (join_dat$date < as.Date(end_date)), ]\n\nstr(nov[[1]])\n",
+    "created" : 1451211955510.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "651062784",
+    "id" : "CE46A32F",
+    "lastKnownWriteTime" : 1451246170,
+    "path" : "~/Projects/pm25/PM25/analysis/driver.R",
+    "project_path" : "driver.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

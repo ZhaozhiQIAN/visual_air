@@ -1,0 +1,18 @@
+{
+    "contents" : "#  数值单位：μg/m3(CO为mg/m3)\naqi_dat = read.csv(\"../houbao/export.csv\", header = TRUE, stringsAsFactors = FALSE)\nhead(aqi_dat)\n\nvalid_date = grepl(\"[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}\", aqi_dat$date)\nsum(valid_date)\naqi_dat = aqi_dat[valid_date, ]\n\naqi_dat$date = as.Date(aqi_dat$date)\nhead(aqi_dat$date)\nclass(aqi_dat$date)\n\n# city = sapply(aqi_dat$city, function(x) substr(x, start = 1, stop = nchar(x)-1))\n# head(city)\n# aqi_dat$city = city\n\nhead(aqi_dat)\ntable(aqi_dat$city)\nlength(unique(aqi_dat$city)) # 248 different cities\n\n# city location\nloc_dat = read.csv(\"../China.Cities.Location.Linux.csv\", header = TRUE, stringsAsFactors = FALSE)\nless_city = sapply(loc_dat$city, function(x) substr(x, start = 1, stop = nchar(x)-1))\nloc_dat$full_city = loc_dat$city\nloc_dat$city = less_city\nloc_dat = loc_dat[!duplicated(loc_dat$city), ]\nhead(loc_dat)\n\n# join\njoin_dat = merge(aqi_dat, loc_dat, by = \"city\")\ntable(join_dat$city)\n\n# remove duplication\ndupr = duplicated(join_dat[, c(\"GPSLontitude\", \"GPSLatitude\", \"date\", \"city\")])\nsum(dupr)\njoin_dat = join_dat[!dupr, ]\n",
+    "created" : 1450602873407.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1175308770",
+    "id" : "A63F325",
+    "lastKnownWriteTime" : 1451046017,
+    "path" : "~/Projects/pm25/PM25/analysis/data.R",
+    "project_path" : "data.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "type" : "r_source"
+}
